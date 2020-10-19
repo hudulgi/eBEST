@@ -5,6 +5,7 @@ import pythoncom
 import inspect
 import user
 import pandas as pd
+import sys
 
 
 class XASessionEvents:
@@ -220,7 +221,7 @@ def sell_order_all(_acc, _pwd):
     """
     잔고 시장가 일괄매도
     """
-    jango1, jango2 = t0424(accno=_acc, passwd=_pwd)
+    jango1, jango2 = t0424(accno=_acc, passwd=_pwd)  # 잔고 조회, 종목내역은 jango2
 
     for i in range(jango2.shape[0]):
         temp = jango2.iloc[i]
@@ -241,19 +242,24 @@ def sell_order_all(_acc, _pwd):
                 '대출일': '',
                 '주문조건구문': '0'
             }
-            CSPAT00600(order_input)
+            CSPAT00600(order_input)  # 주문 실행
 
 
 if __name__ == '__main__':
     resdir = 'C:\\eBEST\\xingAPI'
 
+    run_mode = sys.argv[1]
+    print("실행모드 : %s" % run_mode)
+
     acc = login(id=user.id, pwd=user.pwd, cert=user.cert_pwd)
     print(acc)  # 계좌번호
 
-    codes = ['233740', '233160', '229200', '232080']  # KODEX, TIGER 코스닥150 & 레버리지
-    trade_price = 20000
+    if run_mode == 'buy':
+        codes = ['233740', '233160', '229200', '232080']  # KODEX, TIGER 코스닥150 & 레버리지
+        trade_price = 20000  # 종목당 매수금액
 
-    for code in codes:
-        buy_order(code)
+        for code in codes:
+            buy_order(code)
 
-    # sell_order_all(acc[0], user.trade_pwd)
+    elif run_mode == 'sell':
+        sell_order_all(acc[0], user.trade_pwd)
